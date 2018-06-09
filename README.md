@@ -35,5 +35,24 @@ URL = http://ec2-52-32-17-248.us-west-2.compute.amazonaws.com/
 
 11. Postgresql (apt-get install postgresql) + (apt-get install postgresql-client)
 
+# LANGUAGES
 
+This app is programmed entirely in Python code, and uses Flask, SQL Alchemy, and Psycopg2 to interact with non-Python sources.
 
+# AKNOWLEDGEMENTS
+
+1. Udacity - For reference material
+2. Udacity Forum and Mentors - For an excellent source of pertinent information and specific help
+3. Flask documentation - Online
+4. SQL Alchemy documentation - Online
+5. Postgresql official documentation - Online
+6. Apache2 official documentation - Online
+7. Stack Exchange - Online source for queries and troubleshooting
+8. Google Oauth2 official documentation - Online
+9. mod_wsgi official documentation - Online
+10. Psycopg2 official documentation - Online
+11. Digital Ocean documentation - Help with laying out a WSGI/Apache2 app
+12. SSH official documentation - Online
+13. Amazon Web Services official documentation - Online
+
+Author - Nick Purington - Udacity student/Aspiring Web Developer
