@@ -2,7 +2,7 @@ from flask import Flask, render_template, request
 from flask import redirect, jsonify, url_for, flash
 from sqlalchemy import create_engine, asc
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, BaseMetal, Alloy, ClientInfo
+from database_setup import Base, BaseMetal, Alloy, Users
 from flask import session as login_session
 import random
 import string
@@ -131,60 +131,25 @@ def gconnect():
 
 # User Helper Functions
 def createUser(login_session):
-    newUser = User(username=login_session['username'], email=login_session[
+    newUser = Users(username=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
     session.add(newUser)
     session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
+    users = session.query(Users).filter_by(email=login_session['email']).one()
     return user.id
 
 
-def getUserInfo(user_id):
-    user = session.query(ClientInfo).filter_by(id=user_id).one()
+def getUserInfo(users_id):
+    user = session.query(Users).filter_by(id=users_id).one()
     return user
 
 
 def getUserID(email):
     try:
-        user = session.query(ClientInfo).filter_by(email=email).one()
+        user = session.query(Users).filter_by(email=email).one()
         return user.id
     except:
         return None
-
-
-# DISCONNECT - Revoke a current user's token and reset their login_session
-@app.route('/gdisconnect')
-def gdisconnect():
-    access_token = login_session.get('access_token')
-    if access_token is None:
-        print 'Access Token is None'
-        response = make_response(json.dumps(
-            'Current user not connected.'), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-    print 'In gdisconnect access token is %s', access_token
-    print 'User name is: '
-    print login_session['username']
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
-        % login_session['access_token']
-    h = httplib2.Http()
-    result = h.request(url, 'GET')[0]
-    print 'result is '
-    print result
-    if result['status'] == '200':
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['picture']
-        response = make_response(json.dumps('Successfully disconnected.'), 200)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-    else:
-        response = make_response(json.dumps(
-            'Failed to revoke token for given user.', 400))
-        response.headers['Content-Type'] = 'application/json'
-        return response
 
 
 # JSON APIs to view serializad Basemetal and Alloy Information
@@ -219,7 +184,7 @@ def newBaseMetal():
         return redirect('/login')
     if request.method == 'POST':
         newBaseMetal = BaseMetal(name=request.form['name'],
-            user_id=login_session['user_id'])
+            users_id=login_session['user_id'])
         session.add(newBaseMetal)
         flash('New Base Metal %s Successfully Created' % newBaseMetal.name)
         session.commit()
@@ -232,7 +197,7 @@ def newBaseMetal():
 @app.route('/basemetal/<int:basemetal_id>/edit', methods=['GET', 'POST'])
 def editBaseMetal(basemetal_id):
     editedBaseMetal = session.query(BaseMetal).filter_by(id=basemetal_id).one()
-    if editedBaseMetal.user_id != login_session['user_id']:
+    if editedBaseMetal.users_id != login_session['user_id']:
         flash('Not allowed - Please create your own basemetal to edit')
         return redirect(url_for('showBaseMetals'))
     if request.method == 'POST':
@@ -249,7 +214,7 @@ def editBaseMetal(basemetal_id):
 def deleteBaseMetal(basemetal_id):
     baseMetalToDelete = session.query(BaseMetal).filter_by(
         id=basemetal_id).one()
-    if baseMetalToDelete.user_id != login_session['user_id']:
+    if baseMetalToDelete.users_id != login_session['user_id']:
         flash('Not allowed - Please create your own basemetal to delete')
         return redirect(url_for('showBaseMetals'))
     if request.method == 'POST':
@@ -267,7 +232,7 @@ def deleteBaseMetal(basemetal_id):
 @app.route('/basemetal/<int:basemetal_id>/alloy')
 def showAlloy(basemetal_id):
     basemetal = session.query(BaseMetal).filter_by(id=basemetal_id).one()
-    alloy = session.query(Alloy).filter_by(basemetal_id=basemetal_id).all()
+    alloy = session.query(Alloy).filter_by(id=basemetal_id).all()
     if 'username' not in login_session:
         return render_template(
             'publicAlloys.html', basemetal=basemetal, alloy=alloy)
@@ -297,7 +262,7 @@ def newAlloy(basemetal_id):
 def editAlloy(basemetal_id, alloy_id):
     editedItem = session.query(Alloy).filter_by(id=alloy_id).one()
     basemetal = session.query(BaseMetal).filter_by(id=basemetal_id).one()
-    if editedItem.user_id != login_session['user_id']:
+    if editedItem.users_id != login_session['user_id']:
         flash('Not allowed - Please create your own alloy to edit')
         return redirect(url_for('showBaseMetals'))
     if request.method == 'POST':
@@ -321,7 +286,7 @@ def editAlloy(basemetal_id, alloy_id):
 def deleteAlloy(basemetal_id, alloy_id):
     basemetal = session.query(BaseMetal).filter_by(id=basemetal_id).one()
     itemToDelete = session.query(Alloy).filter_by(id=alloy_id).one()
-    if itemToDelete.user_id != login_session['user_id']:
+    if itemToDelete.users_id != login_session['user_id']:
         flash('Not allowed - Please create your own alloy to delete')
         return redirect(url_for('showBaseMetals'))
     if request.method == 'POST':
@@ -336,13 +301,42 @@ def deleteAlloy(basemetal_id, alloy_id):
 
 # Disconnect based on provider
 @app.route('/disconnect')
-def disconnect():
-    gdisconnect()
-    flash("You have successfully been logged out.")
-    basemetals = session.query(BaseMetal).order_by(asc(BaseMetal.name))
-    return render_template('publicBaseMetals.html', basemetals=basemetals)
+def gdisconnect():
+    access_token = login_session.get('access_token')
+    if access_token is None:
+        print 'Access Token is None'
+        response = make_response(json.dumps(
+            'Current user not connected.'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    print 'In gdisconnect access token is %s', access_token
+    print 'User name is: '
+    print login_session['username']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+        % login_session['access_token']
+    h = httplib2.Http()
+    result = h.request(url, 'GET')[0]
+    print 'result is '
+    print result
+    if result['status'] == '200' or '400':
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['picture']
+        response = make_response(json.dumps('Successfully disconnected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        flash("You have successfully been logged out.")
+        basemetals = session.query(BaseMetal).order_by(asc(BaseMetal.name))
+        return render_template('publicBaseMetals.html', basemetals=basemetals)
+    else:
+        response = make_response(json.dumps(
+            'Failed to revoke token for given user.', 400))
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
 
 if __name__ == '__main__':
     app.secret_key = 'super_secret_key'
-    app.run(host='0.0.0.0',port=80)
+    app.debug = True
+    app.run(host='0.0.0.0', port=80)

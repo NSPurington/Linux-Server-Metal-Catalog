@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html class = 'bg'>
+<html class = "bg">
 <head>
 	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 	<title>Alloy</title>
 </head>
 
 <header>
-	<div class = 'title'>
-		<div class = 'title-inner'>
+	<div class = "title">
+		<div class = "title-inner">
 			<h1>Alloy Derived From {{basemetal.name}}</h1>
 			<hr>
 		</div>
@@ -24,7 +24,7 @@
 
 <body>
 
-	<div class = 'flash'>
+	<div class = "flash">
 	
 	{% with messages = get_flashed_messages() %}
     	{% if messages %}
@@ -35,21 +35,21 @@
         {% endfor %}
         </ul>
         {% endif %}
-    {% endwith %}
+	{% endwith %}
 
 	</div>
 
-    <div class = 'a-description'
-		</div>
-			{% for a in alloy %}
-				<div class="a-text">
-					<h3>{{a.name}}</h3>
-					<p><strong>Description: </strong>{{a.description}}</p>
-					<a href='{{url_for('showLogin') }}'>Edit</a> | 
-					<a href='{{url_for('showLogin') }}'>Delete</a>
-				</div>
-			{% endfor %}
-		</div>
+	<div class = "a-description">
+
+		{% for a in alloy %}
+			<div class="a-text">
+				<h3>{{a.name}}</h3>
+				<p><strong>Description: </strong>{{a.description}}</p>
+				<a href='{{url_for('showLogin') }}'>Edit</a> | 
+				<a href='{{url_for('showLogin') }}'>Delete</a>
+			</div>
+		{% endfor %}
+	
 	</div>			
 </body>
 </html>

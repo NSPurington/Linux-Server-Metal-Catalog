@@ -10,44 +10,21 @@ Base = declarative_base()
 secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
 
 
-class ClientInfo(Base):
-    __tablename__ = 'client_info'
+class Users(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(32), index=True)
     picture = Column(String)
     email = Column(String)
-    password_hash = Column(String(64))
-
-    def hash_password(self, password):
-        self.password_hash = pwd_context.encrypt(password)
-
-    def verify_password(self, password):
-        return pwd_context.verify(password, self.password_hash)
-
-    def generate_auth_token(self, expiration=600):
-        s = Serializer(secret_key, expires_in = expiration)
-        return s.dumps({'id': self.id })
-
-    @staticmethod
-    def verify_auth_token(token):
-        s = Serializer(secret_key)
-        try:
-            data = s.loads(token)
-        except SignatureExpired:
-            #Valid Token, but expired
-            return None
-        except BadSignature:
-            #Invalid Token
-            return None
-        user_id = data['id']
-        return user_id
-
+    
 
 class BaseMetal(Base):
     __tablename__ = 'basemetal'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(500), nullable=False)
+    name = Column(String(250), nullable=False)
+    users_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
+    users = relationship(Users)
 
     @property
     def serialize(self):
@@ -61,11 +38,13 @@ class BaseMetal(Base):
 class Alloy(Base):
     __tablename__ = 'alloy'
 
-    name = Column(String(500), nullable=False)
+    name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
-    description = Column(String(500))
-    basemetal_id = Column(Integer, ForeignKey('basemetal.id'))
+    description = Column(String(250))
+    basemetal_id = Column(Integer, ForeignKey('basemetal.id', ondelete='CASCADE', onupdate='CASCADE'))
     basemetal = relationship(BaseMetal)
+    users_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
+    users = relationship(Users)
 
     @property
     def serialize(self):
