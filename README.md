@@ -1,6 +1,6 @@
 # Metal-Catalog-App
 
-Metal Catalog App on an AWS Lightsail Linux server using a PostgreSql database
+________________________________________________________________________________________________________________________________________
 
 # DESCRIPTION
 
