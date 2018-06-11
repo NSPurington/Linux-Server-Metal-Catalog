@@ -4,13 +4,13 @@ ________________________________________________________________________________
 
 # DESCRIPTION
 
-The Metal Catalog App is a web app, coded using Python, using Flask, SQL Alchemy, and Psycopg2 to interact with the Apache2 WSGI protocol based on an Amazon Web Services Linux (Ubuntu distribution) server.  Postgresql is used for the database duties, and holds the 3 tables used in this app.  This apps purpose is to educate clients on basemetal and alloy relationships, as well as giving an opportunity to add a basemetal and alloy. 
+This apps purpose is to educate clients on basemetal and alloy relationships, as well as giving an opportunity to add a basemetal and alloy. 
 
 # LOCATION
 
 IP address = 52.32.17.248
 
-SSH port = 22
+SSH port = 2200
 
 URL = http://ec2-52-32-17-248.us-west-2.compute.amazonaws.com/
 
