@@ -29,7 +29,7 @@ URL = http://ec2-52-32-17-248.us-west-2.compute.amazonaws.com/
 --Web/WSGI--
 
 9. Apache2 (apt-get install apache2)
-10. MOD - WSGI (apt-get libapache2-mod-wsgi)
+10. MOD - WSGI (apt-get install libapache2-mod-wsgi)
 
 --Database--
 
