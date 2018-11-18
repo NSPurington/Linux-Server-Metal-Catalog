@@ -37,7 +37,7 @@ URL = http://ec2-52-32-17-248.us-west-2.compute.amazonaws.com/
 
 # LANGUAGES
 
-This app is programmed entirely in Python code, and uses Flask, SQL Alchemy, and Psycopg2 to interact with non-Python sources.
+This app is programmed with Python back-end code, and uses Flask, SQL Alchemy, and Psycopg2 to interact with non-Python sources.  HTML and CSS are used for front-end structure and styling.
 
 # AKNOWLEDGEMENTS
 
