@@ -8,25 +8,25 @@ from sqlalchemy import create_engine
 Base = declarative_base()
     
 
-class product(Base):
+class Product(Base):
     __tablename__ = 'products'
 
-    Product Code = Column(Integer, primary_key=True)
-    Name = Column(String(250), nullable=False)
-    Price = Column(Numeric (5, 2), nullable=False)
+    id = Column(Integer, primary_key=True)
+    price = Column(Integer, nullable=False)
+    name = Column(String(250), nullable=False)
     
 
     @property
     def serialize(self):
         """Return object data in serializeable format"""
         return {
-            'Product Code': self.Product Code,
-            'Name': self.Name,
-            'Price': self.Price,
+            'id': self.id,
+            'price': self.price,
+            'name': self.name
         }
 
 
-engine = create_engine('postgresql+psycopg2://products:products@localhost/products')
+engine = create_engine('postgresql+psycopg2://products_user:U$er@localhost/postgres')
 
 
 Base.metadata.create_all(engine)

@@ -1,9 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
  
-from database_setup import Base, products
+from database_setup import Base, Product
  
-engine = create_engine('postgresql+psycopg2://products:products@localhost/products')
+engine = create_engine('postgresql+psycopg2://products_user:U$er@localhost/postgres')
 # Bind the engine to the metadata of the Base class so that the
 # declaratives can be accessed through a DBSession instance
 Base.metadata.bind = engine
@@ -20,21 +20,21 @@ session = DBSession()
 
 
 #First product
-001 = products(Product Code = "001", Name = "Lavender Heart", Price = "9.25")
+product1 = Product(id = "001", name = "Lavender heart", price = "9.25")
 
-session.add(001)
+session.add(product1)
 session.commit()
 
 #Second product
-002 = products(Product Code = "002", Name = "Personalized Cufflinks", Price = "45.00")
+product2 = Product(id = "002", name = "Personalized cufflinks", price = "45.00")
 
-session.add(002)
+session.add(product2)
 session.commit()
 
 #Third product
-003 = products(Product Code = "003", Name = "Kids T-shirt", Price = "19.95")
+product3 = Product(id = "003", name = "Kids T-shirt", price = "19.95")
 
-session.add(003)
+session.add(product3)
 session.commit()
 
 
