@@ -2,60 +2,31 @@ from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
-from passlib.apps import custom_app_context as pwd_context
-import random, string
-from itsdangerous import(TimedJSONWebSignatureSerializer as Serializer, BadSignature, SignatureExpired)
+
+
 
 Base = declarative_base()
-secret_key = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in xrange(32))
-
-
-class Users(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(32), index=True)
-    picture = Column(String)
-    email = Column(String)
     
 
-class BaseMetal(Base):
-    __tablename__ = 'basemetal'
+class product(Base):
+    __tablename__ = 'products'
 
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    users_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
-    users = relationship(Users)
-
-    @property
-    def serialize(self):
-        """Return object data in serializeable format"""
-        return {
-            'name': self.name,
-            'id': self.id,
-        }
-
-
-class Alloy(Base):
-    __tablename__ = 'alloy'
-
-    name = Column(String(80), nullable=False)
-    id = Column(Integer, primary_key=True)
-    description = Column(String(250))
-    basemetal_id = Column(Integer, ForeignKey('basemetal.id', ondelete='CASCADE', onupdate='CASCADE'))
-    basemetal = relationship(BaseMetal)
-    users_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE', onupdate='CASCADE'))
-    users = relationship(Users)
+    Product Code = Column(Integer, primary_key=True)
+    Name = Column(String(250), nullable=False)
+    Price = Column(Numeric (5, 2), nullable=False)
+    
 
     @property
     def serialize(self):
         """Return object data in serializeable format"""
         return {
-            'name': self.name,
-            'description': self.description,
+            'Product Code': self.Product Code,
+            'Name': self.Name,
+            'Price': self.Price,
         }
 
 
-engine = create_engine('postgresql+psycopg2://catalog:catalog@localhost/metalcatalog')
+engine = create_engine('postgresql+psycopg2://products:products@localhost/products')
 
 
 Base.metadata.create_all(engine)
