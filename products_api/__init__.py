@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from flask import redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, asc, func
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, Product
 import random
@@ -35,11 +35,21 @@ def productsJSON():
     return jsonify(items=[i.serialize for i in items])
 
 
-@app.route('/v1/product/<int:product_id>')
-def alloyJSON(product_id):
-    product = session.query(product).filter_by(id=product_id).one()
-    alloy = session.query(Alloy).filter_by(product_id=product_id).all()
-    return jsonify(Alloy_Item=[i.serialize for i in alloy])
+@app.route('/v1/product/<int:id>')
+def productJSON(id):
+	#items = session.query(Product).all()
+	count = session.query(Product).count()
+	if id > count:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	elif id < 1:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	else:
+		item = session.query(Product).filter_by(id=id).one_or_none()
+		return jsonify(item.serialize)
 
 
 # Show all products
