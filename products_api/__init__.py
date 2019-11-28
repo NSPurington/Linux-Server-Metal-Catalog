@@ -38,7 +38,6 @@ def productsJSON():
 # JSON APIs to view serialized Product Information for specific products
 @app.route('/v1/product/<int:id>', methods=['GET'])
 def productJSON(id):
-	#items = session.query(Product).all()
 	count = session.query(Product).count()
 	if id > count:
 		response = make_response(json.dumps("No Product Exists With This ID."), 404)
@@ -56,7 +55,6 @@ def productJSON(id):
 @app.route('/v1/product', methods=['GET', 'POST'])
 def newProduct():
     if request.method == 'POST':
-        #newProduct = Product(name=requests.json['name'], price=requests.json['price'])
         toAdd = request.get_json(silent=True)
         newProduct = Product(name=toAdd['name'], price=toAdd['price'])
         session.add(newProduct)
@@ -72,6 +70,24 @@ def newProduct():
 
 
 # Delete a Product
+@app.route('/v1/product/<int:id>', methods=['DELETE'])
+def deleteProduct(id):
+	count = session.query(Product).count()
+	if id > count:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	elif id < 1:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	else:
+		productToDelete = session.query(Product).filter_by(id=id).one()
+		session.delete(productToDelete)
+		session.commit()
+		response = make_response(json.dumps('Item Deleted.'), 200)
+		response.headers['Content-Type'] = 'application/json'
+		return response
 
 
 
