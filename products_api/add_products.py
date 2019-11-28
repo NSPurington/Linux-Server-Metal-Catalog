@@ -20,19 +20,19 @@ session = DBSession()
 
 
 #First product
-product1 = Product(id = "001", name = "Lavender heart", price = "9.25")
+product1 = Product(name = "Lavender heart", price = "9.25")
 
 session.add(product1)
 session.commit()
 
 #Second product
-product2 = Product(id = "002", name = "Personalized cufflinks", price = "45.00")
+product2 = Product(name = "Personalized cufflinks", price = "45.00")
 
 session.add(product2)
 session.commit()
 
 #Third product
-product3 = Product(id = "003", name = "Kids T-shirt", price = "19.95")
+product3 = Product(name = "Kids T-shirt", price = "19.95")
 
 session.add(product3)
 session.commit()

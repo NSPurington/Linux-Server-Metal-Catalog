@@ -22,20 +22,21 @@ Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
-# JSON APIs to view serializad Product Information
+# HTTP Landing Page Test
 @app.route('/', methods=['GET'])
 def pageTest():
     return '''<h1>API Test</h1>
 	<p>Landing Page for the API Test app.</p>'''
 
-# JSON APIs to view serializad Product Information
+# JSON APIs to view serialized Products Information for all products
 @app.route('/v1/products', methods=['GET'])
 def productsJSON():
     items = session.query(Product).all()
     return jsonify(items=[i.serialize for i in items])
 
 
-@app.route('/v1/product/<int:id>')
+# JSON APIs to view serialized Product Information for specific products
+@app.route('/v1/product/<int:id>', methods=['GET'])
 def productJSON(id):
 	#items = session.query(Product).all()
 	count = session.query(Product).count()
@@ -51,16 +52,27 @@ def productJSON(id):
 		item = session.query(Product).filter_by(id=id).one_or_none()
 		return jsonify(item.serialize)
 
+# Create a new Product
+@app.route('/v1/product', methods=['GET', 'POST'])
+def newProduct():
+    if request.method == 'POST':
+        #newProduct = Product(name=requests.json['name'], price=requests.json['price'])
+        toAdd = request.get_json(silent=True)
+        newProduct = Product(name=toAdd['name'], price=toAdd['price'])
+        session.add(newProduct)
+        session.commit()
+        response = make_response(json.dumps(
+            'New Item Added.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+    	error = make_response(json.dumps("Error Adding Product"), 404)
+    	response.headers['Content-Type'] = 'application/json'
+    	return error
 
-# Show all products
-#@app.route('/')
-#@app.route('/products/')
-#def showproducts():
-#    products = session.query(product).order_by(asc(product.name))
-#    if 'username' not in login_session:
-#        return render_template('publicproducts.html', products=products)
-#    else:
-#        return render_template('products.html', products=products)
+
+# Delete a Product
+
 
 
 if __name__ == '__main__':
