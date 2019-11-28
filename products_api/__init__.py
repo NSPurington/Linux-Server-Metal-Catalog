@@ -28,14 +28,14 @@ def pageTest():
     return '''<h1>API Test</h1>
 	<p>Landing Page for the API Test app.</p>'''
 
-# JSON APIs to view serialized Products Information for all products
+# Serialized Products Information for all products
 @app.route('/v1/products', methods=['GET'])
 def productsJSON():
     items = session.query(Product).all()
     return jsonify(items=[i.serialize for i in items])
 
 
-# JSON APIs to view serialized Product Information for specific products
+# Serialized Product Information for specific products
 @app.route('/v1/product/<int:id>', methods=['GET'])
 def productJSON(id):
 	count = session.query(Product).count()
@@ -52,7 +52,7 @@ def productJSON(id):
 		return jsonify(item.serialize)
 
 # Create a new Product
-@app.route('/v1/product', methods=['GET', 'POST'])
+@app.route('/v1/product', methods=['POST'])
 def newProduct():
     if request.method == 'POST':
         toAdd = request.get_json(silent=True)
@@ -89,9 +89,40 @@ def deleteProduct(id):
 		response.headers['Content-Type'] = 'application/json'
 		return response
 
+# Edit a Product
+@app.route('/v1/product/<int:id>', methods=['PUT'])
+def editProduct(id):
+	count = session.query(Product).count()
+	if id > count:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	elif id < 1:
+		response = make_response(json.dumps("No Product Exists With This ID."), 404)
+		response.headers['Content-Type'] = 'application/json'
+		return response
+	else:
+		originalProduct = session.query(Product).filter_by(id=id).one()
+		updateValue = request.get_json(silent=True)
+		if updateValue['name']:
+			session.delete(originalProduct)
+			editedProduct = Product(id=originalProduct.id, name=updateValue['name'], price=originalProduct.price)
+			session.add(editedProduct)
+			session.commit()
+			response = make_response(json.dumps('Item Edited.'), 200)
+			response.headers['Content-Type'] = 'application/json'
+			return response
+		elif updateValue['price']:
+			session.delete(originalProduct)
+			editedProduct = Product(id=originalProduct.id, name=originalProduct.name, price=updateValue['price'])
+			session.add(editedProduct)
+			session.commit()
+			response = make_response(json.dumps('Item Edited.'), 200)
+			response.headers['Content-Type'] = 'application/json'
+			return response
+
 
 
 if __name__ == '__main__':
     app.debug = True
-    #app.run(host='127.0.0.1', port=5432)
     app.run()
